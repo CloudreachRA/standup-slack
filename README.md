@@ -1,4 +1,4 @@
-# Standup for Slack [![Build Status](https://travis-ci.org/alexfu/standup-slack.svg?branch=master)](https://travis-ci.org/alexfu/standup-slack)
+# Standup for Slack [![Build Status](https://travis-ci.org/alexfu/standup-slack.svg?branch=master)](https://travis-ci.org/alexfu/standup-slack)[![Coverage Status](https://coveralls.io/repos/alexfu/standup-slack/badge.svg?branch=master)](https://coveralls.io/r/alexfu/standup-slack?branch=master)
 Slack message formatter for daily standup messages. We, at [Everseat](http://www.everseat.com), use [Slack](https://slack.com) to record and share our daily standups. Here's what a typical standup feed looks like:
 
 ![](http://i.imgur.com/aW8wQSp.png)
