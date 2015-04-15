@@ -13,6 +13,8 @@ And it will be automatically formatted into something like:
 
 ![](http://i.imgur.com/71KRNuz.png)
 
+Additionally, non-standard JSON is allowed through the [jsonic](https://www.npmjs.com/package/jsonic) library.
+
 # Usage
 Since the app requires user authorization, you must authorize the app before using it. Do this by running the `/standup` Slack command without arguments. Slack will reply with a URL that you can visit in order to authorize the app.
 
@@ -29,7 +31,7 @@ You'll want to visit that URL to diagnose the invalid message. If you're wonderi
  - **Postgres**: Postgres is used to store user IDs and user access tokens. This is so the app can post messages as the authenticated user.
 
 # Getting Started
-Once you've cloned this project, you'll want to [create a new Heroku instance](https://devcenter.heroku.com/articles/creating-apps#creating-a-named-app) and [provision a Postgres database](https://addons.heroku.com/heroku-postgresql). 
+Once you've cloned this project, you'll want to [create a new Heroku instance](https://devcenter.heroku.com/articles/creating-apps#creating-a-named-app) and [provision a Postgres database](https://addons.heroku.com/heroku-postgresql).
 
 Login into the database with `heroku pg:psql` and run `CREATE TABLE users (id text not null, token text not null`.
 
