@@ -8,6 +8,7 @@
  */
 
 var S = require('string');
+var jsonic = require('jsonic');
 
 var buildTemplate = function(json) {
   var template = '_*Standup*_\n';
@@ -24,7 +25,7 @@ var buildTemplate = function(json) {
 
 exports.format = function(text) {
   try {
-    var parsedText = JSON.parse(text);
+    var parsedText = jsonic(text);
     var standupMessage = buildTemplate(parsedText);
     return S(standupMessage).template(parsedText).s;
   } catch (err) {

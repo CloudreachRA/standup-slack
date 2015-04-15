@@ -12,6 +12,24 @@ describe('Formatter', function() {
       expect(defaultFormatter.format(input)).to.equal(expected);
     });
 
+    it('should format non-standard standup message', function() {
+      var input = "{Yesterday: 'N/A', Today: 'N/A'}";
+      var expected = '_*Standup*_\n> *Yesterday*: N/A\n> *Today*: N/A';
+      expect(defaultFormatter.format(input)).to.equal(expected);
+    });
+
+    it('should format non-standard standup message without curly brackets', function() {
+      var input = "Yesterday: 'N/A', Today: 'N/A'";
+      var expected = '_*Standup*_\n> *Yesterday*: N/A\n> *Today*: N/A';
+      expect(defaultFormatter.format(input)).to.equal(expected);
+    });
+
+    it('should format non-standard standup message without quotes', function() {
+      var input = "{Yesterday: Did some stuff., Today: More stuff.}";
+      var expected = '_*Standup*_\n> *Yesterday*: Did some stuff.\n> *Today*: More stuff.';
+      expect(defaultFormatter.format(input)).to.equal(expected);
+    });
+
   });
 
   describe('holiday formatter', function() {
