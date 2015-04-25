@@ -4,29 +4,23 @@
 
 var formidable = require('formidable');
 var request = require('request');
+var rp = require('request-promise');
 var pg = require('pg');
-var fs = require('fs');
 var formatter = require('../formatters/defaultFormatter.js');
 
-var postMessageToSlack = function(token, channel, message, callback) {
-  var body = {
-    "token": token,
-    "channel": channel,
-    "text": message,
-    "as_user": true
-  };
-  request.post({url: 'https://slack.com/api/chat.postMessage', form: body}, function(err, resp, body) {
-    if (err) {
-      callback(err, null);
-    } else {
+var postMessageToSlack = function(body, callback) {
+  rp({url: 'https://slack.com/api/chat.postMessage', method: 'POST', form: body})
+    .then(function(body) {
       var result = JSON.parse(body);
       if (result.ok) {
-        callback(null, resp);
+        callback(null);
       } else {
-        callback(result.error, null);
+        callback(result.error);
       }
-    }
-  });
+    })
+    .catch(function(err) {
+      callback(err);
+    });
 };
 
 var checkIfUserRegistered = function(userId, callback) {
@@ -55,26 +49,19 @@ var checkIfUserRegistered = function(userId, callback) {
   });
 };
 
-var sendBadJsonResponse = function(req, res, text) {
-  var fileName = new Date().getTime() + '.json';
-  fs.writeFile('temp/' + fileName, text, function(err) {
-    if (err) {
-      console.log(err);
-      res.send("Oops, something went terribly wrong.");
-    } else {
-      var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
-      res.send("Couldn't post your message. Please make sure it's valid: " + url);
-    }
-  });
-};
-
 var handleExistingUser = function(req, res, user, fields) {
   var text = fields.text;
   var standupMessage = formatter.format(text);
   console.log('Formatted standup message: ', standupMessage);
   if (standupMessage) {
     console.log('Posting standup message to Slack...');
-    postMessageToSlack(user.token, fields.channel_id, standupMessage, function(err, resp) {
+    var body = {
+      "token": user.token,
+      "channel": fields.channel_id,
+      "text": standupMessage,
+      "as_user": true
+    };
+    postMessageToSlack({"token": user.token,"channel": fields.channel_id,"text": standupMessage,"as_user": true}, function(err) {
       if (err) {
         res.send('Could not post message because of ' + err);
       } else {
@@ -82,20 +69,27 @@ var handleExistingUser = function(req, res, user, fields) {
       }
     });
   } else {
-    fs.exists('temp/', function(exists) {
-      if (exists) {
-        sendBadJsonResponse(req, res, text);
-      } else {
-        fs.mkdir('temp/', function(err) {
-          if (err) {
-            console.log(err);
-            res.send('Oops, something went terribly wrong.');
-          } else {
-            sendBadJsonResponse(req, res, text);
-          }
-        });
-      }
-    });
+    // Send a DM to the user with the bad standup message.
+    var body = {
+      token: user.token,
+      user: user.id
+    };
+    rp({url: 'https://slack.com/api/im.open', method: 'POST', form: body})
+      .then(function(body) {
+        var result = JSON.parse(body);
+        if (result.ok) {
+          var message = 'Whoops! Your standup message seems to be invalid. You posted `' + text + '`.';
+          postMessageToSlack({"token": user.token, "channel": result.channel.id, "text": message, "username": "Standup Formatter", "icon_emoji": ":shit:"}, function(err) {
+            if (err) {
+              console.log(err);
+            }
+            res.end();
+          });
+        }
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
   }
 };
 

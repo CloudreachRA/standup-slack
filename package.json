@@ -11,8 +11,8 @@
     "jsonic": "^0.1.2",
     "pg": "^4.3.0",
     "request": "^2.53.0",
-    "string": "^3.1.0",
-    "temp": "^0.8.1"
+    "request-promise": "^0.4.2",
+    "string": "^3.1.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
