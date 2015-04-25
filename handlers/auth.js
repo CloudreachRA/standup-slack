@@ -4,7 +4,7 @@
  * it is ready to obtain an access token.
  */
 
-var request = require('request');
+var rp = require('request-promise');
 var pg = require('pg');
 
 exports.get = function(req, res) {
@@ -16,22 +16,14 @@ exports.get = function(req, res) {
     "redirect_uri": process.env.REDIRECT_URI
   };
 
-  request.post('https://slack.com/api/oauth.access', {form: body}, function(err, r, body) {
-    if (err) {
-      console.log('code exchange failed', err);
-      res.status(400);
-    } else {
+  rp({url: 'https://slack.com/api/oauth.access', method: 'POST', form: body})
+    .then(function(body) {
       var result = JSON.parse(body);
       var accessToken = result.access_token;
-
       if (result.ok) {
-        request('https://slack.com/api/auth.test?token=' + accessToken, function(err, resp, body) {
-          if (err) {
-            console.log('failed to get auth info', err);
-            res.status(500).end();
-          } else {
+        rp({url: 'https://slack.com/api/auth.test?token=' + accessToken})
+          .then(function(body) {
             var userId = JSON.parse(body).user_id;
-
             pg.connect(process.env.DATABASE_URL, function(err, client, done) {
               if (err) {
                 console.log('postgres connection error', err);
@@ -53,11 +45,17 @@ exports.get = function(req, res) {
                 }
               });
             });
-          }
-        });
+          })
+          .catch(function(err) {
+            console.log('failed to get auth info', err);
+            res.status(500).end();
+          });
       } else {
         res.status(401).send(result.error);
       }
-    }
-  });
+    })
+    .catch(function(err) {
+      console.log('code exchange failed', err);
+      res.status(400);
+    });
 };

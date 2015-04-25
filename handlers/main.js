@@ -3,7 +3,6 @@
  */
 
 var formidable = require('formidable');
-var request = require('request');
 var rp = require('request-promise');
 var pg = require('pg');
 var formatter = require('../formatters/defaultFormatter.js');
@@ -89,6 +88,7 @@ var handleExistingUser = function(req, res, user, fields) {
       })
       .catch(function(err) {
         console.log(err);
+        res.end();
       });
   }
 };
