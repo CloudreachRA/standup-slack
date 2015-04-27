@@ -77,7 +77,7 @@ var handleExistingUser = function(req, res, user, fields) {
       .then(function(body) {
         var result = JSON.parse(body);
         if (result.ok) {
-          var message = 'Whoops! Your standup message seems to be invalid. You posted `' + text + '`.';
+          var message = 'Whoops! Your standup message seems to be invalid. You posted\n>' + text;
           postMessageToSlack({"token": user.token, "channel": result.channel.id, "text": message, "username": "Standup Formatter", "icon_emoji": ":shit:"}, function(err) {
             if (err) {
               console.log(err);
