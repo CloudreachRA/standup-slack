@@ -30,6 +30,12 @@ describe('Formatter', function() {
       expect(defaultFormatter.format(input)).to.equal(expected);
     });
 
+    it('should format standup message with unicode double characters', function() {
+      var input = "{“Yesterday”: “Did some stuff.”, “Today”: “More stuff.”}";
+      var expected = '_*Standup*_\n> *Yesterday*: Did some stuff.\n> *Today*: More stuff.';
+      expect(defaultFormatter.format(input)).to.equal(expected);
+    });
+
   });
 
   describe('holiday formatter', function() {

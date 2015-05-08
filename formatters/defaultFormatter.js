@@ -25,6 +25,13 @@ var buildTemplate = function(json) {
 
 exports.format = function(text) {
   try {
+
+    // Replace unicode double/single quotes with
+    // utf8 double/single quotes.
+    text = text
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2018\u2019]/g, "'");
+
     var parsedText = jsonic(text);
     var standupMessage = buildTemplate(parsedText);
     return S(standupMessage).template(parsedText).s;
