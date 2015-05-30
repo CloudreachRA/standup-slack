@@ -60,7 +60,13 @@ var handleExistingUser = function(req, res, user, fields) {
       "text": standupMessage,
       "as_user": true
     };
-    postMessageToSlack({"token": user.token,"channel": fields.channel_id,"text": standupMessage,"as_user": true}, function(err) {
+    postMessageToSlack({
+      "token": user.token,
+      "channel": fields.channel_id,
+      "text": standupMessage,
+      "as_user": true,
+      "parse": "full"
+    }, function(err) {
       if (err) {
         res.send('Could not post message because of ' + err);
       } else {
