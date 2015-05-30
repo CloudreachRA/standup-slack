@@ -4,8 +4,9 @@
 
 var formidable = require('formidable');
 var rp = require('request-promise');
-var pg = require('pg');
 var formatter = require('../formatters/defaultFormatter.js');
+
+var User = require('../models/user');
 
 var postMessageToSlack = function(body, callback) {
   rp({url: 'https://slack.com/api/chat.postMessage', method: 'POST', form: body})
@@ -23,29 +24,14 @@ var postMessageToSlack = function(body, callback) {
 };
 
 var checkIfUserRegistered = function(userId, callback) {
-  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-    if (err) {
-      done();
+  User.where({ id: userId })
+    .fetch()
+    .then(function(model) {
+      callback(null, model);
+    })
+    .catch(function (err) {
       callback(err, null);
-      return;
-    }
-
-    client.query("SELECT * FROM users WHERE id = $1", [userId], function(err, result) {
-      done();
-      client.end();
-
-      if (err) {
-        callback(err, null);
-      } else {
-        var userExists = result.rowCount > 0;
-        if (userExists) {
-          callback(null, result.rows[0]);
-        } else {
-          callback(null, null);
-        }
-      }
     });
-  });
 };
 
 var handleExistingUser = function(req, res, user, fields) {

@@ -5,7 +5,8 @@
  */
 
 var rp = require('request-promise');
-var pg = require('pg');
+
+var User = require('../models/user');
 
 exports.get = function(req, res) {
   var code = req.query.code;
@@ -24,27 +25,16 @@ exports.get = function(req, res) {
         rp({url: 'https://slack.com/api/auth.test?token=' + accessToken})
           .then(function(body) {
             var userId = JSON.parse(body).user_id;
-            pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-              if (err) {
-                console.log('postgres connection error', err);
-                res.status(500).send('There was an error with your request :(');
-                client.end();
-                done();
-                return;
-              }
 
-              client.query("INSERT INTO users (id, token) VALUES ($1, $2)", [userId, accessToken], function(err, result) {
-                done();
-                client.end();
-
-                if (err) {
-                  console.error('error inserting data', err);
-                  res.status('500').end();
-                } else {
-                  res.send('OK');
-                }
+            new User({ id: userId, token: accessToken })
+              .save(null, { method: 'insert' })
+              .then(function () {
+                res.send('OK');
+              })
+              .catch(function (err) {
+                console.log('error inserting user: ', err);
+                res.status('500').end();
               });
-            });
           })
           .catch(function(err) {
             console.log('failed to get auth info', err);
