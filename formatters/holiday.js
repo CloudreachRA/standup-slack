@@ -4,6 +4,8 @@
  */
 
 var S = require('string');
+var jsonic = require('jsonic');
+var Promise = require('bluebird');
 var holidays = {
   "12/25": ":christmas_tree:",
   "10/31": ":ghost:"
@@ -38,7 +40,22 @@ var buildTemplate = function(json) {
 };
 
 exports.format = function(text) {
-  var parsedText = JSON.parse(text);
-  var standupMessage = buildTemplate(parsedText);
-  return S(standupMessage).template(parsedText).s;
+  return new Promise(function (resolve, reject) {
+    try {
+      // Replace unicode double/single quotes with
+      // utf8 double/single quotes.
+      text = text
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u2018\u2019]/g, "'");
+
+      var parsedText =  jsonic(text);
+      var standupMessage = buildTemplate(parsedText);
+      var formattedMessage = S(standupMessage).template(parsedText).s;
+
+      resolve(formattedMessage);
+    } catch (err) {
+      console.log('Error formatting standup message: ', err);
+      reject(err);
+    }
+  });
 };

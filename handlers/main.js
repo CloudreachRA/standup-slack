@@ -27,7 +27,7 @@ var checkIfUserRegistered = function(userId, callback) {
   User.where({ id: userId })
     .fetch()
     .then(function(model) {
-      callback(null, model);
+      callback(null, model.attributes);
     })
     .catch(function (err) {
       callback(err, null);
@@ -36,53 +36,51 @@ var checkIfUserRegistered = function(userId, callback) {
 
 var handleExistingUser = function(req, res, user, fields) {
   var text = fields.text;
-  var standupMessage = formatter.format(text);
-  console.log('Formatted standup message: ', standupMessage);
-  if (standupMessage) {
-    console.log('Posting standup message to Slack...');
-    var body = {
-      "token": user.token,
-      "channel": fields.channel_id,
-      "text": standupMessage,
-      "as_user": true
-    };
-    postMessageToSlack({
-      "token": user.token,
-      "channel": fields.channel_id,
-      "text": standupMessage,
-      "as_user": true,
-      "parse": "full"
-    }, function(err) {
-      if (err) {
-        res.send('Could not post message because of ' + err);
-      } else {
-        res.end();
-      }
-    });
-  } else {
-    // Send a DM to the user with the bad standup message.
-    var body = {
-      token: user.token,
-      user: user.id
-    };
-    rp({url: 'https://slack.com/api/im.open', method: 'POST', form: body})
-      .then(function(body) {
-        var result = JSON.parse(body);
-        if (result.ok) {
-          var message = 'Whoops! Your standup message seems to be invalid. You posted\n>' + text;
-          postMessageToSlack({"token": user.token, "channel": result.channel.id, "text": message, "username": "Standup Formatter", "icon_emoji": ":shit:"}, function(err) {
-            if (err) {
-              console.log(err);
-            }
-            res.end();
-          });
+  formatter.format(text)
+    .then(function(standupMessage) {
+      console.log('Formatted standup message: ', standupMessage);
+      console.log('Posting standup message to Slack...');
+      postMessageToSlack({
+        "token": user.token,
+        "channel": fields.channel_id,
+        "text": standupMessage,
+        "as_user": true,
+        "parse": "full"
+      }, function(err) {
+        if (err) {
+          res.send('Could not post message because of ' + err);
+        } else {
+          res.end();
         }
-      })
-      .catch(function(err) {
-        console.log(err);
-        res.end();
       });
-  }
+    })
+    .catch(function (err) {
+      // Send a DM to the user with the bad standup message.
+      var body = {
+        token: user.token,
+        user: user.id
+      };
+      rp({url: 'https://slack.com/api/im.open', method: 'POST', form: body})
+        .then(function(body) {
+          var result = JSON.parse(body);
+          if (result.ok) {
+            var message = 'Whoops! Your standup message seems to be invalid. You posted\n>' + text + '\n With the following error\n> ' + err;
+            postMessageToSlack({"token": user.token, "channel": result.channel.id, "text": message, "username": "Standup Formatter", "icon_emoji": ":shit:"}, function(err) {
+              if (err) {
+                console.log(err);
+              }
+              res.end();
+            });
+          } else {
+            console.log('Unable to post message: ', result);
+            res.end();
+          }
+        })
+        .catch(function(err) {
+          console.log(err);
+          res.end();
+        });
+    });
 };
 
 var handleNewUser = function(req, res) {
