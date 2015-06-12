@@ -27,7 +27,7 @@ var checkIfUserRegistered = function(userId, callback) {
   User.where({ id: userId })
     .fetch()
     .then(function(model) {
-      callback(null, model.attributes);
+      callback(null, model);
     })
     .catch(function (err) {
       callback(err, null);
@@ -108,7 +108,7 @@ exports.post = function(req, res) {
       }
 
       if (user) {
-        handleExistingUser(req, res, user, fields);
+        handleExistingUser(req, res, user.attributes, fields);
       } else {
         handleNewUser(req, res);
       }
