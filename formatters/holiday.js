@@ -5,20 +5,16 @@
 
 var S = require('string');
 var jsonic = require('jsonic');
+var moment = require('moment');
+var decorators = require('../decorators');
 var Promise = require('bluebird');
-var holidays = {
-  "12/25": ":christmas_tree:",
-  "10/31": ":ghost:"
-};
 
 var getDecoration = function(date) {
-  // Plus 1 to month since month starts at 0.
-  var key = (date.getMonth() + 1) + '/' + date.getDate();
-  return holidays[key];
+  return decorators.holiday.query(date);
 };
 
 var decorate = function(text) {
-  var emoji = getDecoration(new Date());
+  var emoji = getDecoration(moment());
   if (emoji) {
     return emoji + text + emoji;
   }
