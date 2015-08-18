@@ -5,7 +5,11 @@ Slack message formatter for daily standup messages. We, at [Everseat](http://www
 
 Different formats, different styles. Standup for Slack is meant to not only make it easier to post these kinds of messages but to make them consistent.
 
-Simply enter your standup message in a valid JSON format like so:
+Simply enter your standup message like so:
+
+`/standup Yesterday: Did some stuff, Today: Chillax, Blockers: None`
+
+Or using standard JSON format:
 
 ![](http://i.imgur.com/BZLxdS3.png)
 
@@ -33,7 +37,9 @@ You'll want to visit that URL to diagnose the invalid message. If you're wonderi
 # Getting Started
 Once you've cloned this project, you'll want to [create a new Heroku instance](https://devcenter.heroku.com/articles/creating-apps#creating-a-named-app) and [provision a Postgres database](https://addons.heroku.com/heroku-postgresql).
 
-Login into the database with `heroku pg:psql` and run `CREATE TABLE users (id text not null, token text not null`.
+Push the code to your new Heroku app: `git push heroku master`.
+
+Login into the database with `heroku pg:psql` and run `CREATE TABLE users (id text not null, token text not null);`.
 
 Then, you'll want to [create a Slack app](https://api.slack.com/applications) of your own. Use the following when creating a new Slack app:
 
@@ -48,7 +54,7 @@ heroku config:set CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 heroku config:set REDIRECT_URI=https://example-heroku-app.com/auth
 ```
 
-Finally, to tie it all together, [create a new Slack slash command](https://everseat.slack.com/services/new/slash-commands) with the following...
+Finally, to tie it all together, [create a new Slack slash command](https://your-org.slack.com/services/new/slash-commands) with the following...
 
 - **Command**: /standup (or whatever you like)
 - **URL**: Heroku app URL (https://example-heroku-app.com).
