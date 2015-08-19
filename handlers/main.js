@@ -93,7 +93,7 @@ exports.post = function(req, res) {
   form.parse(req, function(err, fields) {
     if (err) {
       console.log('failed to parse request');
-      res.statu(400).send('What a bad request *tsk* *tsk*...');
+      res.status(400).send('What a bad request *tsk* *tsk*...');
       return;
     }
 
