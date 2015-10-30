@@ -4,7 +4,7 @@
 
 var formidable = require('formidable');
 var rp = require('request-promise');
-var formatter = require('../formatters/defaultFormatter.js');
+var formatter = require('../formatters/holiday.js');
 
 var User = require('../models/user');
 
