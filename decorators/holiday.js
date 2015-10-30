@@ -23,6 +23,7 @@ var holidays = {
   },
   10: function(date) {
     switch (date.date()) {
+      case 30:
       case 31:
         return ":ghost:";
     }
