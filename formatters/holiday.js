@@ -16,7 +16,7 @@ var getDecoration = function(date) {
 var decorate = function(text) {
   var emoji = getDecoration(moment());
   if (emoji) {
-    return emoji + text + emoji;
+    return emoji + ' ' + text + ' ' + emoji;
   }
 
   return text;
